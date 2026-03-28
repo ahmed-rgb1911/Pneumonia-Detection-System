@@ -15,7 +15,6 @@ def set_bg_from_local(image_file):
         background-image: url("data:image/webp;base64,{encoded_string.decode()}");
         background-attachment: fixed;
         background-size: cover;
-        /* السطرين اللي جايين هما اللي بيغمقوا الصورة */
         background-blend-mode: overlay;
         background-color: rgba(0, 0, 0, 0.7); 
     }}
