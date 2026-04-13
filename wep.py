@@ -74,24 +74,34 @@ st.title("Pneumonia Detection System")
 uploaded_file = st.file_uploader("Upload X-ray", type=["jpg", "png", "jpeg"])
 
 if uploaded_file:
+    # 1. Load and display image (Only Once)
     image = Image.open(uploaded_file).convert('RGB')
-    st.image(image, caption="Original Image", use_column_width=True)
+    st.image(image, caption="Uploaded X-ray Image", use_column_width=True)
     
+    # 2. Preprocessing
     img_resized = image.resize((128, 128))
     img_array = np.expand_dims(np.array(img_resized) / 255.0, axis=0)
     
+    # 3. Model Prediction (Executing once)
     prediction = model.predict(img_array)
     
-    if prediction[0][0] > 0.5:
-        st.success(f"Result: Normal ({prediction[0][0]:.2f})")
+    # 4. Handle Labels (Alphabetical order: Normal=0, Pneumonia=1)
+    class_names = ['Normal', 'Pneumonia'] 
+    result_idx = np.argmax(prediction[0])
+    confidence = prediction[0][result_idx] * 100
+
+    # 5. Display Prediction Results
+    if class_names[result_idx] == 'Normal':
+        st.success(f"Result: Normal (Confidence: {confidence:.2f}%)")
     else:
-        st.error(f"Result: Pneumonia ({1 - prediction[0][0]:.2f})")
+        st.error(f"Result: Pneumonia (Confidence: {confidence:.2f}%)")
         
+    # 6. Grad-CAM Analysis Button
     if st.button("Show Grad-CAM Analysis"):
         with st.spinner('Generating Heatmap...'):
             try:
                 heatmap = get_gradcam_heatmap(img_array, model, 'final_conv_layer')
                 final_img = display_heatmap(image, heatmap)
-                st.image(final_img, caption="Grad-CAM Hotspot", use_column_width=True)
+                st.image(final_img, caption="Grad-CAM Visualization", use_column_width=True)
             except Exception as e:
                 st.error(f"Error generating heatmap: {e}")
