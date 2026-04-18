@@ -5,25 +5,81 @@ from PIL import Image
 import cv2
 import base64
 
+
+
+with st.sidebar:
+    st.image("logo.png", width=100) 
+    st.title("Project Info")
+    
+    st.markdown("---") 
+    
+    st.markdown("### **Developed by:**")
+    st.write("Ahmed Gehad (team leader)")
+    st.write("Tarek Omran")
+    
+    st.markdown("---")
+    
+    st.markdown("### **Project:**")
+    st.info("Pneumonia Detection System")
+    
+    st.markdown("### **Course:**")
+    st.success("Work Based Project")
+    
+    st.markdown("---")
+    st.write("This system uses a Deep Learning model (CNN) to detect Pneumonia from X-ray images with high accuracy.")
+     
+
+
+
 def set_bg_from_local(image_file):
     with open(image_file, "rb") as f:
         encoded_string = base64.b64encode(f.read())
     st.markdown(
-    f"""
-    <style>
-    .stApp {{
-        background-image: url("data:image/webp;base64,{encoded_string.decode()}");
-        background-attachment: fixed;
-        background-size: cover;
-        background-blend-mode: overlay;
-        background-color: rgba(0, 0, 0, 0.7); 
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True
+        f"""
+        <style>
+        .stApp {{
+            background-image: url("data:image/webp;base64,{encoded_string.decode()}");
+            background-attachment: fixed;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-blend-mode: normal;
+            background-color: rgba(255, 255, 255, 0.2); 
+        }}
+
+        [data-testid="stSidebar"] {{
+            background-color: #26274d !important;
+        }}
+        
+        [data-testid="stSidebar"] h1 {{
+            color: white !important;
+        }}
+        
+        [data-testid="stSidebar"] .stMarkdown p, 
+        [data-testid="stSidebar"] span {{
+            color: white !important;
+        }}
+
+        .stAlert {{
+            background-color: rgb(255, 255, 255) !important; 
+            color: #1e1e2f !important; 
+            border: 3px solid #4cc9f0 !important;
+            border-radius: 15px !important;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3) !important;
+        }}
+        
+        .stAlert p {{
+            font-weight: bold !important;
+            font-size: 22px !important;
+            color: #1e1e2f !important;
+        }}
+
+        h1 {{ color: #1e1e2f !important; }}
+        </style>
+        """,
+        unsafe_allow_html=True
     )
 
-set_bg_from_local('download.webp')
+set_bg_from_local('OIP.webp')
 
 
 @st.cache_resource
@@ -74,29 +130,23 @@ st.title("Pneumonia Detection System")
 uploaded_file = st.file_uploader("Upload X-ray", type=["jpg", "png", "jpeg"])
 
 if uploaded_file:
-    # 1. Load and display image (Only Once)
     image = Image.open(uploaded_file).convert('RGB')
     st.image(image, caption="Uploaded X-ray Image", use_column_width=True)
     
-    # 2. Preprocessing
     img_resized = image.resize((128, 128))
     img_array = np.expand_dims(np.array(img_resized) / 255.0, axis=0)
     
-    # 3. Model Prediction (Executing once)
     prediction = model.predict(img_array)
     
-    # 4. Handle Labels (Alphabetical order: Normal=0, Pneumonia=1)
     class_names = ['Normal', 'Pneumonia'] 
     result_idx = np.argmax(prediction[0])
     confidence = prediction[0][result_idx] * 100
 
-    # 5. Display Prediction Results
     if class_names[result_idx] == 'Normal':
         st.success(f"Result: Normal (Confidence: {confidence:.2f}%)")
     else:
         st.error(f"Result: Pneumonia (Confidence: {confidence:.2f}%)")
         
-    # 6. Grad-CAM Analysis Button
     if st.button("Show Grad-CAM Analysis"):
         with st.spinner('Generating Heatmap...'):
             try:
