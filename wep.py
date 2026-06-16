@@ -14,8 +14,7 @@ with st.sidebar:
     st.markdown("---") 
     
     st.markdown("### **Developed by:**")
-    st.write("Ahmed Gehad (team leader)")
-    st.write("Tarek Omran")
+    st.write("Ahmed Gehad ")
     
     st.markdown("---")
     
